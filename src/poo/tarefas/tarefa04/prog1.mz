@@ -1,0 +1,9 @@
+escrever
+a = 7
+b = 3
+c = 0
+c += a
+c += b
+escrever
+c += 3
+escrever
