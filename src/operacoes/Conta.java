@@ -4,8 +4,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Conta{
-		private static Pattern pattern = Pattern.compile("\\s*([0-9]{1,}([.][0-9]{1,}){0,1})\\s*[-+/*]\\s*([0-9]{1,}([.][0-9]{1,}){0,1})\\s*");
+		private final static String acceptedOperations = "-+*/";	
+		private static Pattern pattern = Pattern.compile("\\s*([0-9]{1,}([.][0-9]{1,}){0,1})\\s*["+acceptedOperations+"]\\s*([0-9]{1,}([.][0-9]{1,}){0,1})\\s*");
 		private static Matcher matcher;
+		
 		
 		
 		
@@ -17,26 +19,11 @@ public class Conta{
             	return -9999999;
             }
             if(pattern.matcher(conta).matches()){
-            	while(matcher.find()){
-		            if(matcher.group().contains("*")){
-		            	resultado += fazerMultiplicacao(matcher.group());
-		            }
-		            else if(matcher.group().contains("/")){
-		            	resultado += fazerDivisao(matcher.group());
-		            }
-		            else if(matcher.group().contains("+")){
-		            	resultado += fazerSoma(matcher.group());
-		            }
-		            else if(matcher.group().contains("-")){
-		            	resultado += fazerSubtracao(matcher.group());
-		            }
-		            else{
-		            	return Double.valueOf(matcher.group());
-		            }
-            	}
-            	if(conta.split("[-+/*]").length % 2 != 0)
-            	{
-            		resultado += Double.valueOf(conta.split("[-+/*]")[conta.split("[-+/*]").length-1]) ;
+            	resultado = fazerOperacao(matcher);
+            	if(conta.split("["+acceptedOperations+"]").length % 2 != 0)
+            	{//Pega o resultado, o último operando e o último valor e faz a conta
+            		Matcher lastOperation = Pattern.compile("\\s*["+acceptedOperations+"]\\s*([0-9]{1,}([.][0-9]{1,}){0,1})\\s*$").matcher(conta);
+            		resultado = fazerOperacao(resultado + " " + lastOperation.group(lastOperation.groupCount()-1) + " " + conta.split("["+acceptedOperations+"]")[conta.split("["+acceptedOperations+"]").length-1]);
             	}
 	           return resultado;
             }
@@ -47,6 +34,50 @@ public class Conta{
             {
             	return -9999999;
             }
+		}
+		
+		private static double fazerOperacao(Matcher RegexMatcher)
+		{
+			Double resultado = 0.0;
+			while(RegexMatcher.find()){
+	            if(RegexMatcher.group().contains("*")){
+	            	resultado += fazerMultiplicacao(RegexMatcher.group());
+	            }
+	            else if(RegexMatcher.group().contains("/")){
+	            	resultado += fazerDivisao(RegexMatcher.group());
+	            }
+	            else if(RegexMatcher.group().contains("+")){
+	            	resultado += fazerSoma(RegexMatcher.group());
+	            }
+	            else if(RegexMatcher.group().contains("-")){
+	            	resultado += fazerSubtracao(RegexMatcher.group());
+	            }
+	            else{
+	            	resultado =  Double.valueOf(RegexMatcher.group());
+	            }
+			}
+			return resultado;
+		}
+		
+		private static double fazerOperacao(String conta)
+		{
+			Double resultado = 0.0;
+	            if(conta.contains("*")){
+	            	resultado += fazerMultiplicacao(conta);
+	            }
+	            else if(conta.contains("/")){
+	            	resultado += fazerDivisao(conta);
+	            }
+	            else if(conta.contains("+")){
+	            	resultado += fazerSoma(conta);
+	            }
+	            else if(conta.contains("-")){
+	            	resultado += fazerSubtracao(conta);
+	            }
+	            else{
+	            	resultado =  Double.valueOf(conta);
+	            }
+			return resultado;
 		}
 		
 		private static double fazerSoma(String Conta) {
